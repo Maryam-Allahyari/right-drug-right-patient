@@ -1,0 +1,15 @@
+# generated results (rebuilt from code)
+outputs/
+
+# R session and project files
+.Rhistory
+.RData
+.Rproj.user/
+
+# package libraries (renv restores them; Linux libs come from Docker)
+renv/library/
+.rlib*/
+
+# secrets and deployment
+.env
+rsconnect/
