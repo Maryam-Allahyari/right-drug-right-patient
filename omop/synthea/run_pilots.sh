@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
-# Pilot runs: small lung and breast cancer populations, to choose the disease.
-# Synthea 3.3.0 (ETL-Synthea supports <= 3.3.0). Output goes to M:/Data/synthea (not in git).
+# Generates two small populations, one with lung cancer and one with breast
+# cancer, so we can see which one has enough treatment and death records
+# to build the cohort on.
 #
-# Notes
-# - -p counts LIVING patients only; dead patients come on top. Lung cancer patients
-#   mostly die, so a small -p still gives a few hundred patients.
-# - -a 45-90 limits ages to where these cancers occur, which saves a lot of run time.
-# - Keep files (-k) keep only patients with the cancer diagnosis.
+# Before running:
+#   - Java 17 and Synthea 3.3.0 (paths below, change them if yours differ).
+#     Stay on 3.3.0: ETL-Synthea doesn't support newer versions yet.
+#
+# From anywhere:
+#   bash omop/synthea/run_pilots.sh
+#
+# Output: Synthea CSVs in M:/Data/synthea/pilot_lung and pilot_breast
+# (not tracked in git), plus a log for each. Takes about 20 minutes.
+#
+# A few things that surprised me:
+#   - -p counts *living* patients only; dead ones come on top. Lung cancer
+#     patients mostly die, so -p 25 still gave 204 patients.
+#   - -a 45-90 keeps ages where these cancers actually happen, which saves
+#     a lot of run time.
+#   - the keep files (-k) throw away everyone without the cancer diagnosis.
 
 set -e
 JAVA="M:/Tools/jdk-17.0.20.1+1/bin/java"

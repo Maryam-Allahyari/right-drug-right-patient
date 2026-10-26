@@ -32,5 +32,17 @@ Two small Synthea 3.3.0 populations were generated, keeping only patients with t
 - Synthea generates men and women equally, so many attempts to find a breast cancer patient failed (the "failed to produce a matching patient" messages in the breast log).
 - `-p` in Synthea counts living patients only; deceased patients come on top.
 
+## Full population
+
+`synthea/run_full.sh` generates the lung cancer population with the same settings as the pilot (seed 2026, ages 45–90), asking for 120 living patients:
+
+| | NSCLC | SCLC |
+|---|---|---|
+| Patients | 714 | 121 |
+| Treated with chemotherapy after diagnosis | 713 | 121 |
+| Deaths within 30 months of first treatment | 123 | 22 |
+
+SCLC patients stay in the data and are excluded when the cohort is built.
+
 ## Data location
 Synthea output is written to `M:/Data/synthea/` and is not tracked in git; it can be regenerated with the commands in `synthea/`.
