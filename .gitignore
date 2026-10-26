@@ -13,3 +13,7 @@ renv/library/
 # secrets and deployment
 .env
 rsconnect/
+
+# local machine settings and secrets
+.Renviron
+config.yml

@@ -1,0 +1,13 @@
+# Copy to config.yml (git-ignored) and fill in your password.
+default:
+  dbms: "postgresql"
+  server: "localhost/synthea_omop"
+  port: 5432
+  user: "postgres"
+  password: "CHANGE_ME"
+  cdm_schema: "cdm"
+  synthea_schema: "native"
+  results_schema: "results"
+  scratch_schema: "scratch"
+  synthea_version: "3.3.0"
+  cdm_version: "5.4"
