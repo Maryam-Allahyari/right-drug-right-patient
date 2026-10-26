@@ -44,5 +44,17 @@ Two small Synthea 3.3.0 populations were generated, keeping only patients with t
 
 SCLC patients stay in the data and are excluded when the cohort is built.
 
+## Source data profile (WhiteRabbit)
+
+Before converting anything to OMOP, the Synthea CSVs were scanned with WhiteRabbit v1.0.0 (settings in `whiterabbit/scan.ini`). The scan report lists every table and column with its type, how often it is empty and its most common values. Values seen fewer than 5 times are left out of the report, and for large tables the frequencies come from the first 100,000 rows only.
+
+What matters for the conversion:
+- **Code systems are mixed.** Conditions are mostly SNOMED CT, but about 3% are ICD-10; procedures are SNOMED CT plus about 3% CDT (dental) codes; medications are RxNorm. ICD-10 codes have to be mapped to standard SNOMED concepts.
+- **Two date formats.** Patients and conditions use plain dates (`2021-10-05`); encounters, medications and procedures use timestamps with a time zone (`2021-10-05T03:30:19Z`).
+- **Death is a column, not a table.** `DEATHDATE` is in `patients.csv` (filled for 748 of 835 patients) and becomes the OMOP `death` table.
+- **Personal identifiers** (names, SSN, address, coordinates; all synthetic) are in `patients.csv`. They are not carried into OMOP.
+- **Chemotherapy dominates the medication records:** cisplatin and paclitaxel are about 73% of the first 100,000 rows, because Synthea records them repeatedly for years. The OMOP `drug_exposure` table will be large.
+- About 29% of conditions have no end date (ongoing conditions).
+
 ## Data location
 Synthea output is written to `M:/Data/synthea/` and is not tracked in git; it can be regenerated with the commands in `synthea/`.
