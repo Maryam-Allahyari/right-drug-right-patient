@@ -18,18 +18,22 @@
 # Some living-patient slots give up after 1,000 failed attempts; that's
 # expected for a rare disease and just means fewer living patients.
 
-set -e
+set -e   # stop at the first error instead of carrying on
+
+# where things are on my machine, change these to yours
 JAVA="M:/Tools/jdk-17.0.20.1+1/bin/java"
 JAR="M:/Tools/synthea/synthea-with-dependencies-3.3.0.jar"
-KEEP="M:/Projects/right-drug-right-patient/omop/synthea"
+KEEP="M:/Projects/right-drug-right-patient/omop/synthea"   # folder with the keep files
 OUT="M:/Data/synthea"
 mkdir -p "$OUT"
 
 echo "start $(date)"
+# same options as the pilot (see run_pilots.sh), only -p is bigger and
+# Java gets 8 GB instead of 6 because the run is larger
 "$JAVA" -Xmx8g -jar "$JAR" -s 2026 -p 120 -a 45-90 \
   -k "$KEEP/keep_lung.json" \
   --exporter.csv.export true --exporter.fhir.export false \
   --exporter.baseDirectory "$OUT/full_lung" > "$OUT/full_lung.log" 2>&1
 echo "done $(date)"
-tail -3 "$OUT/full_lung.log"
-du -sh "$OUT/full_lung"
+tail -3 "$OUT/full_lung.log"   # last lines show total, alive and dead patients
+du -sh "$OUT/full_lung"         # how much disk space the output took
