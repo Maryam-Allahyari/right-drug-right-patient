@@ -1,0 +1,23 @@
+Table 14.2.2 Progression-Free Survival, ITT
+
+———————————————————————————————————————————————————————————————
+                        Platinum chemotherapy       Drug X     
+                               (N=400)              (N=400)    
+———————————————————————————————————————————————————————————————
+Patients with event         364 (91.00%)         322 (80.50%)  
+PFS (months)                                                   
+  Median                         5.2                  7.2      
+    95% CI                   (4.3, 5.6)           (6.6, 8.4)   
+  25% and 75%-ile             2.7, 10.3            2.8, 15.1   
+  Range                    0.0 to 26.6 {1}      0.1 to 29.0 {2}
+Unstratified analysis                                          
+  p-value (log-rank)                                <0.0001    
+  Hazard Ratio                                       0.66      
+  95% CI                                         (0.57, 0.77)  
+———————————————————————————————————————————————————————————————
+
+{1} - Censored observation: range minimum
+{2} - Censored observation: range maximum
+———————————————————————————————————————————————————————————————
+
+
