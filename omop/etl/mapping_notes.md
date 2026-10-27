@@ -40,6 +40,7 @@ All 835 lung cancer diagnoses used for the cohort are SNOMED. But 142 of the NSC
 
 - **Race:** only *white* (8527), *black* (8516) and *asian* (8515) get a concept. *Native* and *other* become 0, so about 7% of patients (62 of 835) have no race concept. The original value stays in `race_source_value`.
 - **Ethnicity:** *hispanic* → 38003563; everything else (including *nonhispanic*) → 0. So "not Hispanic" and "unknown" look the same in `ethnicity_concept_id`. Again, `ethnicity_source_value` keeps the original.
+- **Dental procedures:** CDT codes (about 3% of procedures) aren't in the Athena vocabularies, so these get `procedure_concept_id = 0`. The code itself stays in `procedure_source_value`.
 - **Time of day** for encounters, drugs and procedures (see above).
 - **Location, provider and care site** are mostly left empty for `person`; this project doesn't need them.
 

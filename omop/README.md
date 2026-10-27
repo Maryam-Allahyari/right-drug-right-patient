@@ -56,5 +56,23 @@ What matters for the conversion:
 - **Chemotherapy dominates the medication records:** cisplatin and paclitaxel are about 73% of the first 100,000 rows, because Synthea records them repeatedly for years. The OMOP `drug_exposure` table will be large.
 - About 29% of conditions have no end date (ongoing conditions).
 
+## Mapping to OMOP (Rabbit-in-a-Hat)
+
+The conversion itself is done with ETL-Synthea, which already has a mapping for every table. Before running it, the tables the cohort needs were laid out in Rabbit-in-a-Hat on top of the WhiteRabbit scan, with the logic written down for each table and for every column that isn't a plain copy:
+
+| File | What it is |
+|---|---|
+| `etl/synthea_to_omop.docx` | The mapping document: one section per OMOP table, with source columns and logic |
+| `etl/synthea_to_omop.json.gz` | The Rabbit-in-a-Hat project (open with *File → Open ETL specs*) |
+| `etl/mapping_notes.md` | What came up when checking the mapping against the data, where information is lost, and what it means for the cohort |
+
+Tables mapped: `person`, `observation_period`, `visit_occurrence`, `condition_occurrence`, `drug_exposure`, `procedure_occurrence` and `death`.
+
+## Vocabularies
+
+The OMOP standard vocabularies were downloaded from [Athena](https://athena.ohdsi.org) (release v5.0 29-AUG-26, CDM v5 format): SNOMED, RxNorm, RxNorm Extension, ICD-10-CM, ICD-10, LOINC, CVX, OMOP Gender, Race, Ethnicity and OMOP Extension. Athena adds the small OMOP vocabularies (visit, domain, type concepts, UCUM units…) on its own. These cover every code system in the Synthea data except two:
+- CPT4 needs a separate licence and Synthea doesn't use it.
+- CDT (dental procedure codes, about 3% of procedures) isn't available from Athena, so those procedures get concept 0. The cohort doesn't use them.
+
 ## Data location
-Synthea output is written to `M:/Data/synthea/` and is not tracked in git; it can be regenerated with the commands in `synthea/`.
+Synthea output is written to `M:/Data/synthea/` and the vocabularies to `M:/Data/vocab/`. Neither is tracked in git: the Synthea data can be regenerated with the commands in `synthea/`, and the vocabularies downloaded again from Athena with the list above.
