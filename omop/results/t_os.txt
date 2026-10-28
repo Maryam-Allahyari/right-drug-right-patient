@@ -1,0 +1,31 @@
+Overall survival: routine care compared with the trial control arm
+
+——————————————————————————————————————————————————————————————————
+                               Trial control arm    Routine care  
+                                    (N=400)            (N=651)    
+——————————————————————————————————————————————————————————————————
+Patients who died                269 (67.25%)       583 (89.55%)  
+OS (months)                                                       
+  Median                             11.1               46.8      
+    95% CI                       (10.0, 12.5)       (44.9, 49.0)  
+  25% and 75%-ile                  4.7, 22.4         34.5, 60.1   
+  Range                         0.1 to 29.6 {1}    0.3 to 72.0 {2}
+12 Months                                                         
+  Patients remaining at risk          179                628      
+  Alive (%)                          47.01              99.22     
+  95% CI                        (42.05, 51.96)     (98.54, 99.90) 
+24 Months                                                         
+  Patients remaining at risk          20                 605      
+  Alive (%)                          23.43              97.62     
+  95% CI                        (17.93, 28.94)     (96.43, 98.81) 
+Unadjusted analysis                                               
+  p-value (log-rank)                                   <0.0001    
+  Hazard Ratio                                          0.04      
+  95% CI                                            (0.03, 0.06)  
+——————————————————————————————————————————————————————————————————
+
+{1} - Censored observation: range maximum
+{2} - Censored observation: range minimum
+——————————————————————————————————————————————————————————————————
+
+

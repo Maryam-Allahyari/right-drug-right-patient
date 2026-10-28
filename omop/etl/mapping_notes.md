@@ -28,7 +28,18 @@ The ETL-Synthea pages below are the source of truth for the full column-by-colum
 | C | 252 | 174 | Malignant tumours, mostly mouth, tongue, throat and larynx; 2 records of lung cancer (C34.9) |
 | Z, M, D, R, S | 314 | | Check-ups, jaw disorders, benign tumours, injuries |
 
-All 835 lung cancer diagnoses used for the cohort are SNOMED. But 142 of the NSCLC patients also have an ICD-10 cancer code, and the cohort excludes patients with another cancer in the previous five years. The ETL-Synthea documentation describes condition codes being looked up as SNOMED; if ICD-10 codes aren't mapped, these cancers end up with `condition_concept_id = 0` and the exclusion would silently miss them. **To check after loading:** how many condition records have concept 0, and whether the ICD-10 cancer codes are mapped to standard SNOMED concepts. If not, they have to be mapped through the vocabulary's ICD-10 → SNOMED *Maps to* relationships before building the cohort.
+All 835 lung cancer diagnoses used for the cohort are SNOMED. But 142 of the NSCLC patients also have an ICD-10 cancer code, and the cohort excludes patients with another cancer in the previous five years, so these codes have to arrive in OMOP.
+
+**Checked after loading:** they do. The ICD-10 cancer codes are mapped to standard SNOMED concepts through the vocabulary's *Maps to* relationships (e.g. C32.9 → *Primary malignant neoplasm of larynx*): 242 of the 252 records, giving 259 rows in `condition_occurrence` because a few codes map to two concepts. The other 10 records (10 patients) are C77.0 and C78.7, metastases in lymph nodes and liver. In OMOP these map to the *Cancer Modifier* vocabulary, which wasn't downloaded, so they were left out. They describe spread of a cancer, not a second primary cancer, so the exclusion rule doesn't need them.
+
+**Unmapped codes are dropped, not set to 0.** ETL-Synthea joins every source code to the mapping table, so a code without a standard concept doesn't show up as `concept_id = 0`; the record just isn't loaded. After loading, no table has concept 0 at all. What was left out:
+
+| Source | Records left out | Of | What they are |
+|---|---|---|---|
+| Conditions | 1,283 (35 codes) | 53,970 | Mostly "history of…" and social findings (served in armed forces, refugee, history of appendectomy…), plus the two metastasis codes above |
+| Procedures | 15,048 | 529,298 | All the dental CDT codes, which aren't in Athena |
+
+None of these is used by the cohort. The lung cancer diagnoses (714 NSCLC patients), the chemotherapy records (834 patients) and all 748 deaths are in OMOP.
 
 **Two date formats.** `patients.csv` and `conditions.csv` use plain dates (`2021-10-05`); `encounters`, `medications` and `procedures` use timestamps with a time zone (`2021-10-05T03:30:19Z`). OMOP keeps the date and sets times to midnight, so the time of day is lost. Not a problem for this project.
 
@@ -40,7 +51,8 @@ All 835 lung cancer diagnoses used for the cohort are SNOMED. But 142 of the NSC
 
 - **Race:** only *white* (8527), *black* (8516) and *asian* (8515) get a concept. *Native* and *other* become 0, so about 7% of patients (62 of 835) have no race concept. The original value stays in `race_source_value`.
 - **Ethnicity:** *hispanic* → 38003563; everything else (including *nonhispanic*) → 0. So "not Hispanic" and "unknown" look the same in `ethnicity_concept_id`. Again, `ethnicity_source_value` keeps the original.
-- **Dental procedures:** CDT codes (about 3% of procedures) aren't in the Athena vocabularies, so these get `procedure_concept_id = 0`. The code itself stays in `procedure_source_value`.
+- **Cancer stage.** Synthea codes the lung cancer diagnosis with its stage (e.g. 424132000 *Non-small cell carcinoma of lung, TNM stage 1*). That code isn't standard and maps to plain *Non-small cell lung cancer* (4115276), so `condition_concept_id` has no stage. In OMOP, stage is held in the Cancer Modifier vocabulary, which wasn't downloaded. The stage stays in `condition_source_value` and `condition_source_concept_id` (found while comparing survival with the trial; every NSCLC patient here is stage I).
+- **Dental procedures and some conditions** without a standard concept are not loaded at all (see above).
 - **Time of day** for encounters, drugs and procedures (see above).
 - **Location, provider and care site** are mostly left empty for `person`; this project doesn't need them.
 
@@ -50,4 +62,4 @@ All 835 lung cancer diagnoses used for the cohort are SNOMED. But 142 of the NSC
 - **Death** comes from the OMOP `death` table, i.e. the certification date (a few days after the true date).
 - **End of follow-up** for patients still alive is the end of their `observation_period` (last encounter), which is what makes censoring possible.
 - **SCLC** patients are excluded by their SNOMED code (254632001); NSCLC is 254637007.
-- **Other cancers** used for the exclusion rule must include the ICD-10-coded ones (see above), not only SNOMED.
+- **Other cancers** for the exclusion rule are found through standard SNOMED concepts, which now include the ICD-10-coded cancers (see above).

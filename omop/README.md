@@ -28,7 +28,7 @@ Two small Synthea 3.3.0 populations were generated, keeping only patients with t
 **Decision: lung cancer, non-small cell (NSCLC) only.** Every lung patient has treatment records, there are about four times as many deaths within 30 months, and only lung has second treatment courses. Small cell lung cancer is a different disease and is left out.
 
 **Things to keep in mind**
-- In Synthea, lung cancer patients live much longer than in reality: the median time from first treatment to death is about 45 months, while real advanced NSCLC has a median survival of about a year. Chemotherapy records also continue for years. These are features of the simulator, not findings.
+- In Synthea, lung cancer patients live much longer than in reality: the median time from first treatment to death is about 45 months, while real advanced NSCLC has a median survival of about a year. Chemotherapy records also continue for years. These are features of the simulator, not findings. (The comparison with the trial below shows why: every patient in this population is stage I.)
 - Synthea generates men and women equally, so many attempts to find a breast cancer patient failed (the "failed to produce a matching patient" messages in the breast log).
 - `-p` in Synthea counts living patients only; deceased patients come on top.
 
@@ -72,7 +72,114 @@ Tables mapped: `person`, `observation_period`, `visit_occurrence`, `condition_oc
 
 The OMOP standard vocabularies were downloaded from [Athena](https://athena.ohdsi.org) (release v5.0 29-AUG-26, CDM v5 format): SNOMED, RxNorm, RxNorm Extension, ICD-10-CM, ICD-10, LOINC, CVX, OMOP Gender, Race, Ethnicity and OMOP Extension. Athena adds the small OMOP vocabularies (visit, domain, type concepts, UCUM units…) on its own. These cover every code system in the Synthea data except two:
 - CPT4 needs a separate licence and Synthea doesn't use it.
-- CDT (dental procedure codes, about 3% of procedures) isn't available from Athena, so those procedures get concept 0. The cohort doesn't use them.
+- CDT (dental procedure codes, about 3% of procedures) isn't available from Athena, so those procedures are left out. The cohort doesn't use them.
+
+## Loading into OMOP
+
+`etl/load_omop.R` loads everything into PostgreSQL with ETL-Synthea (about 35 minutes, most of it the vocabulary). With PostgreSQL's default settings one step ran for 40 minutes without writing a row; the script now gives the ETL more memory and hash joins while it runs, and that step takes seconds.
+
+| OMOP table | Rows |
+|---|---|
+| `person` | 835 |
+| `observation_period` | 835 |
+| `death` | 748 |
+| `visit_occurrence` | 98,814 |
+| `condition_occurrence` | 21,325 |
+| `drug_exposure` | 437,892 |
+| `procedure_occurrence` | 417,164 |
+| `measurement` | 2,087,625 |
+| `observation` | 501,006 |
+
+Everything the cohort needs arrived: all 714 NSCLC patients, chemotherapy records for 834 patients, all 748 deaths, and the ICD-10-coded cancers mapped to SNOMED. Codes without a standard concept are left out rather than set to 0 (2% of conditions, mostly "history of…" findings, and the dental procedures); details in `etl/mapping_notes.md`.
+
+## Data quality checks
+
+`quality/run_quality.R` runs the two standard OHDSI checks on the loaded database (about 15 minutes):
+- **Achilles** computes descriptive statistics for every table (people by age and sex, records per year, most frequent concepts) and stores them in the `results` schema.
+- **DataQualityDashboard (DQD)** runs checks grouped into three questions: does the data follow the OMOP rules (*conformance*), are the fields filled (*completeness*), and are the values believable (*plausibility*). A check fails when more rows break it than its threshold allows.
+
+The vocabulary tables come straight from Athena and are not checked, and neither are the cohort tables, which don't exist yet. That leaves 2,338 checks: **1,529 passed, 790 had nothing to check (an empty table or field) and 19 failed** (`quality/dqd_overview.csv`; the failed checks are in `quality/dqd_failed.csv`). None of the failures touches a field the cohort uses. They fall into three groups:
+
+| Why it failed | Checks | Examples |
+|---|---|---|
+| Synthea doesn't record it, so the field is empty or 0 | 9 | Drug quantity and days of supply, units of measurements and observations, condition status, where a patient was admitted from or discharged to |
+| The concept is in a vocabulary that wasn't downloaded, or is outdated | 5 | Currency in `cost`, provider specialty, the type concept ETL-Synthea uses for observations (replaced in newer vocabularies) |
+| Odd values made by the simulator | 5 | Insurance periods running past death or far into the future, records starting before 1950 (Synthea simulates from birth), prescriptions lasting decades, one woman with a prostate cancer code |
+
+What the cohort needs passed: person, condition and drug concepts, drug start dates, death dates and observation periods. Two extra checks on the fields that matter most: no death is recorded after the end of a person's observation period, so follow-up and death line up; and the chemotherapy records are cisplatin (834 patients), paclitaxel (714, the NSCLC patients) and etoposide (121, the SCLC patients).
+
+**Things to keep in mind for the cohort**
+- **Days of supply is 0 for every chemotherapy record.** Treatment start can be taken from the first drug date as planned, but how long a patient stays on treatment can't come from days of supply; it has to come from the gaps between drug dates.
+- The woman with a prostate cancer code (ICD-10 C61, 1999) also has NSCLC. It's a simulator artefact. It would only matter if it fell in the five years before her treatment start, where the "no other cancer" rule would exclude her; it doesn't, so she stays in the cohort.
+
+To browse all checks: `DataQualityDashboard::viewDqDashboard("M:/Data/omop/quality/dqd_results.json")`.
+
+## The cohort: NSCLC patients starting platinum chemotherapy
+
+The trial's control arm is first-line cisplatin + paclitaxel. Its real-world counterpart is defined in `cohort/nsclc_platinum.sql` and built by `cohort/build_cohort.R`. The SQL is written in OHDSI SQL and translated with SqlRender, so it runs on any database the OMOP tools support. Every concept is used with all its descendants in the vocabulary.
+
+**Index date** (start of follow-up): the first ever dose of platinum chemotherapy (cisplatin or carboplatin). It plays the role of randomisation in the trial.
+
+**Inclusion rules**, applied in this order (`cohort/attrition.csv`):
+
+| Rule | Why | Patients left | Removed |
+|---|---|---|---|
+| First platinum dose | Entry event | 834 | |
+| NSCLC diagnosed in the 180 days before the first dose | The chemotherapy is the first treatment for this cancer (first line) | 713 | 121 (the SCLC patients) |
+| Never diagnosed with small cell lung cancer | A different disease with a different prognosis | 713 | 0 |
+| Paclitaxel within 7 days of the first dose | Same regimen as the trial's control arm | 713 | 0 |
+| No other cancer in the previous 5 years (basal and squamous cell skin cancers allowed) | Usual trial exclusion; another cancer would change survival | 651 | 62 (mostly prostate and head and neck cancers) |
+| Aged 18 or over | Trial eligibility | 651 | 0 |
+| At least a year of records before the first dose | So the look-back rules have data to look at | 651 | 0 |
+
+Three rules remove nobody here, because Synthea treats every NSCLC patient the same way and simulates everyone from birth. They stay in the definition because in real data they would remove patients.
+
+Follow-up runs from the first dose to death, or to the end of the patient's records (the end of the observation period), where alive patients are censored. The cohort is stored in the standard OMOP `results.cohort` table (cohort_definition_id 1), so other OHDSI tools can use it.
+
+**Who is in it** (`cohort/cohort_summary.csv`):
+
+| | Cohort | Trial control arm (showcase trial, `trial/results/showcase`) |
+|---|---|---|
+| Patients | 651 | 400 |
+| Age, median | 56 (IQR 51–64) | 64 |
+| Aged 65 or over | 22% | 48% |
+| Male | 48% | 62% |
+| Deaths | 583 (90%) | |
+| Follow-up, median | 44 months (0.2–72) | |
+
+**Limits of this data compared with the trial**
+- **Every patient has stage I disease; the trial enrols stage IV.** Synthea records the stage inside the diagnosis code, but the OMOP mapping drops it (see below), so it can only be read from the source value. A stage rule would leave nobody, so the cohort keeps everyone and the stage is reported instead.
+- **No performance status (ECOG), histology or biomarker.** Synthea doesn't record them, so the trial's other prognostic factors can't be compared. Only age and sex can.
+- **Everyone also has chemoradiation.** All patients have *Combined chemotherapy and radiation therapy* records, which doesn't match first-line chemotherapy for advanced NSCLC either.
+- **First doses from 1983 to 2026.** Treatment standards changed over that time; since about 2018, first-line advanced NSCLC usually gets immunotherapy with or without chemotherapy, not chemotherapy alone. Synthea doesn't model this, so no calendar restriction is applied.
+- **Patients are younger than in the trial and survive much longer than in reality**, as the next section shows.
+
+## Overall survival compared with the trial's control arm
+
+`analysis/compare_os.R` turns the cohort into ADSL and ADTTE with `admiral`, using the same event and censoring rules as the trial (death is the event; patients still alive are censored at the last date known alive, here the end of their records). The first platinum dose takes the place of randomisation. It then puts the cohort next to the control arm of the showcase trial (`trial/results/showcase/adtte_os.csv`, 400 patients) and summarises both with the same `tern` tables. Output in `results/`.
+
+| | Trial control arm | Routine care |
+|---|---|---|
+| Patients | 400 | 651 |
+| Stage | IV (trial eligibility) | I (all) |
+| Deaths | 269 (67%) | 583 (90%) |
+| Median OS (95% CI) | 11.1 months (10.0–12.5) | 46.8 months (44.9–49.0) |
+| Alive at 12 months | 47% | 99% |
+| Alive at 24 months | 23% | 98% |
+| HR routine care vs trial, first 30 months | | 0.04 (0.03–0.06) |
+| Same, adjusted for age group and sex | | 0.04 (0.03–0.06) |
+
+The trial follows patients for 30 months and the cohort for up to 6 years, so for the hazard ratio both are cut at 30 months.
+
+![OS: trial control arm and routine care](results/f_km_os.png)
+
+**What this means**
+- The routine-care patients are not comparable with the trial's control arm, and age and sex aren't the reason: adjusting for them doesn't move the HR at all.
+- **Stage explains it.** In Synthea 3.3.0, an undiagnosed lung cancer patient has a 20% chance each month of symptoms that lead to diagnosis, and anyone diagnosed within 36 months is stage I. Practically nobody reaches stage II-IV (all 713 treated NSCLC and all 121 SCLC patients here are stage I). For stage I the module sets death 2 to 6 years after diagnosis, a median of 4 years, which is the 46.8 months seen here. Almost no one dies in the first two years, then deaths come at a steady rate until 6 years.
+- **Without the source value the stage would have been invisible.** The OMOP vocabulary maps "Non-small cell carcinoma of lung, TNM stage 1" to "Non-small cell lung cancer". In OMOP, stage belongs in the Cancer Modifier vocabulary and the oncology extension, which weren't part of this conversion.
+- An HR of 0.04 would be absurd as a treatment comparison; here it is a measure of how different the two populations are. This is the reason external comparisons need a check of comparability on the main prognostic factors first.
+
+**What a valid comparison with real data would need:** stage and ECOG captured at the start of treatment (OMOP oncology extension or registry data), the trial's eligibility criteria applied to them, a calendar window when chemotherapy alone was the standard first-line treatment, and adjustment or weighting for the remaining differences in age, sex and other prognostic factors.
 
 ## Data location
-Synthea output is written to `M:/Data/synthea/` and the vocabularies to `M:/Data/vocab/`. Neither is tracked in git: the Synthea data can be regenerated with the commands in `synthea/`, and the vocabularies downloaded again from Athena with the list above.
+Synthea output is written to `M:/Data/synthea/`, the vocabularies to `M:/Data/vocab/` and the full data quality output to `M:/Data/omop/quality/`. None of it is tracked in git: the Synthea data can be regenerated with the commands in `synthea/`, and the vocabularies downloaded again from Athena with the list above.

@@ -5,11 +5,11 @@
 This project looks at that question from two sides, using advanced non-small cell lung cancer (NSCLC) as the example:
 
 1. **Inside the trial:** in a first-line NSCLC trial comparing a new drug with platinum chemotherapy, which subgroup findings can you trust? A simulation study built on a CDISC reporting pipeline, using Roche's open-source R tools.
-2. **Outside the trial** *(in progress)*: the patients who get platinum chemotherapy in routine care. Do they look like that trial's control arm, and how long do they live? A real-world cohort built from synthetic health records in the OMOP Common Data Model.
+2. **Outside the trial:** the patients who get platinum chemotherapy in routine care. Do they look like that trial's control arm, and how long do they live? A real-world cohort built from synthetic health records in the OMOP Common Data Model.
 
 **Progress:**
 - Part 1: done. The plan ([docs/sap.md](docs/sap.md)), code ([trial/](trial/)) and results are below.
-- Part 2: synthetic patients generated and profiled, mapping to OMOP documented, data being loaded into the OMOP database ([omop/](omop/)). The cohort comes next.
+- Part 2: done up to the survival comparison ([omop/](omop/)); results below. A second build of the cohort with the OHDSI cohort tools, as a cross-check, comes next.
 
 All data are **simulated or synthetic**: there are no real patients and no real drug. The results describe how the methods behave in data like these; they say nothing about the effect of any real treatment.
 
@@ -18,11 +18,11 @@ All data are **simulated or synthetic**: there are no real patients and no real 
 | | Part 1: simulated trial | Part 2: real-world cohort |
 |---|---|---|
 | Patients | first-line advanced NSCLC | NSCLC patients in synthetic health records |
-| Treatment compared | Drug X vs **platinum chemotherapy** (cisplatin + paclitaxel) | **platinum chemotherapy** (cisplatin, paclitaxel, etoposide) |
+| Treatment compared | Drug X vs **platinum chemotherapy** (cisplatin + paclitaxel) | **platinum chemotherapy** (cisplatin + paclitaxel) |
 | Main endpoint | overall survival (OS) | OS (health records have no tumour scans, so no progression) |
 | Data standard | CDISC SDTM → ADaM | OMOP CDM → the same ADaM structure (ADSL, ADTTE) |
 
-The trial's control arm and the real-world cohort get the same treatment and end up in the same ADaM format, so one piece of code can describe both: who the patients are (age, sex) and how long they live (Kaplan–Meier curves, OS at 12, 24 and 30 months).
+The trial's control arm and the real-world cohort get the same treatment and end up in the same ADaM format, so one piece of code can describe both: who the patients are (age, sex) and how long they live (Kaplan–Meier curves, OS at 12 and 24 months).
 
 ## Part 1: subgroup findings inside the trial
 
@@ -78,17 +78,39 @@ Rscript trial/scripts/04_summarise.R           # performance measures, MCSEs, fi
 Rscript trial/scripts/05_showcase.R            # one trial to tables and figures
 ```
 
-## Part 2: real-world patients outside the trial *(in progress)*
+## Part 2: real-world patients outside the trial
 
 ### Why this question
 Trial patients are selected: they must be fit enough, meet strict criteria and agree to take part. Patients treated in routine care are often older and sicker, so a trial's results may not carry over to them. Health records can show who those patients are and how they fare, but only if the cohort is defined carefully and the data are checked.
 
 ### Method
-Synthetic patient records are generated with Synthea (Walonoski et al., 2018) and converted to the OMOP Common Data Model, the standard used by the OHDSI community (OHDSI, 2021). The cohort is NSCLC patients starting platinum chemotherapy, defined to mirror the trial's control arm, with a clear start of follow-up and censoring rules, following the ideas of target trial emulation (Hernán & Robins, 2016). It is built twice, in hand-written SQL and with the OHDSI cohort tools, and the two versions are compared as a quality check. OS is then put in the same ADaM format as the trial.
+Synthetic patient records are generated with Synthea (Walonoski et al., 2018) and converted to the OMOP Common Data Model, the standard used by the OHDSI community (OHDSI, 2021). The cohort is NSCLC patients starting platinum chemotherapy, defined to mirror the trial's control arm, with a clear start of follow-up and censoring rules, following the ideas of target trial emulation (Hernán & Robins, 2016). It is written in OHDSI SQL, so it runs on any OMOP database; a second version with the OHDSI cohort tools is planned as a cross-check. OS is then derived with `admiral` into the same ADaM format as the trial and summarised with the same `tern` tables.
 
-The trial and the synthetic records were generated independently and never designed to match. Synthea's lung cancer patients, for example, live much longer than real ones (see [omop/README.md](omop/README.md)). So any difference between the two says nothing about real patients. The aim is a correct, reproducible and quality-checked pipeline, and a clear account of what would make such a comparison valid with real data.
+The trial and the synthetic records were generated independently and never designed to match, so any difference between the two says nothing about real patients. The aim is a correct, reproducible and quality-checked pipeline, and a clear account of what would make such a comparison valid with real data.
 
-Done so far: choice of cancer from two pilot populations, the full population (835 lung cancer patients), a WhiteRabbit profile of the source data, the Synthea → OMOP mapping in Rabbit-in-a-Hat, and the OMOP vocabularies. Details in [omop/README.md](omop/README.md).
+Steps: 835 synthetic lung cancer patients, profiled with WhiteRabbit, mapped in Rabbit-in-a-Hat, loaded into OMOP CDM v5.4 with ETL-Synthea, checked with Achilles and the DataQualityDashboard (2,338 checks, 19 failed, none on a field the cohort uses), then the cohort and the comparison. Details in [omop/README.md](omop/README.md).
+
+### What was found
+- **651 patients** started cisplatin + paclitaxel for newly diagnosed NSCLC with no other recent cancer (834 started platinum; 121 had small cell lung cancer, 62 another cancer in the previous 5 years).
+- **They don't look like the trial's control arm.** They are younger (median age 56 vs 64; 22% vs 48% aged 65 or over) and fewer are men (48% vs 62%).
+- **They live four times as long:** median OS 46.8 vs 11.1 months, 98% vs 23% alive at 24 months.
+- **The reason is stage.** Every NSCLC patient in this Synthea population has stage I disease, while the trial enrols stage IV. Synthea gives stage I a survival time of 2 to 6 years, which is exactly the curve seen here. Adjusting for age and sex leaves the hazard ratio unchanged (0.04 over the first 30 months), so the HR measures the stage difference, not the treatment.
+- **The stage was nearly lost in the conversion.** Synthea records it inside the diagnosis code ("Non-small cell carcinoma of lung, TNM stage 1"), and the OMOP vocabulary maps that to plain "Non-small cell lung cancer", dropping the stage. It survives only in the source value. With real data, stage and performance status would have to be captured explicitly (for example with the OMOP oncology extension) before any comparison with a trial arm.
+
+![OS: trial control arm and routine care](omop/results/f_km_os.png)
+
+Tables: [baseline](omop/results/t_baseline.txt), [OS](omop/results/t_os.txt), [hazard ratios](omop/results/hazard_ratios.csv), [cohort attrition](omop/cohort/attrition.csv).
+
+### Running it
+Needs PostgreSQL, the Athena vocabularies and the settings in `omop/config.yml` (see [omop/README.md](omop/README.md)). From the repo root:
+
+```
+bash omop/synthea/run_full.sh            # synthetic lung cancer population
+Rscript omop/etl/load_omop.R             # Synthea -> OMOP CDM (~35 min)
+Rscript omop/quality/run_quality.R       # Achilles and DataQualityDashboard (~15 min)
+Rscript omop/cohort/build_cohort.R       # the cohort and its attrition
+Rscript omop/analysis/compare_os.R       # ADSL/ADTTE and the comparison with the trial
+```
 
 ## Repository layout
 
@@ -97,13 +119,15 @@ docs/sap.md          analysis plan for Part 1
 trial/R/             simulator, SDTM writer, ADaM derivations, analysis methods
 trial/scripts/       01-05, run in order
 trial/results/       results, figures, showcase tables and SDTM
-omop/                Part 2: Synthea, WhiteRabbit, mapping, OMOP load
+omop/                Part 2: Synthea, WhiteRabbit, mapping, OMOP load, data quality
+omop/cohort/         Part 2: cohort definition (SQL) and attrition
+omop/analysis/       Part 2: ADaM and survival comparison; results in omop/results/
 ```
 
 ## Tools
 **Part 1:** R · CDISC SDTM/ADaM · `admiral`, `admiralonco` · `rtables`, `tern` · `bonsaiforest` · `survival`, `ggsurvfit`, `ggplot2`
 
-**Part 2:** Synthea · OMOP CDM v5.4 · PostgreSQL / SQL · OHDSI tools (WhiteRabbit, Rabbit-in-a-Hat, ETL-Synthea; planned: Achilles, DataQualityDashboard, ATLAS, CirceR, CohortGenerator) · SNOMED CT, RxNorm · R
+**Part 2:** Synthea · OMOP CDM v5.4 · PostgreSQL / SQL · OHDSI tools (WhiteRabbit, Rabbit-in-a-Hat, ETL-Synthea, Achilles, DataQualityDashboard, SqlRender, DatabaseConnector; planned: CirceR, CohortGenerator) · SNOMED CT, RxNorm · R · `admiral`, `tern`, `survival`
 
 ## References
 
