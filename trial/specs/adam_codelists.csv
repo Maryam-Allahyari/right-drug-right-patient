@@ -1,0 +1,28 @@
+code_id,name,code,decode
+SEX,Sex,F,Female
+SEX,Sex,M,Male
+AGEU,Age Unit,YEARS,Years
+AGEGR1,Pooled Age Group 1,<65,Under 65 years
+AGEGR1,Pooled Age Group 1,>=65,65 years or over
+ARM,Arm,Drug X,Drug X
+ARM,Arm,Platinum chemotherapy,Platinum chemotherapy (cisplatin + paclitaxel)
+ARMCD,Arm Code,DRUGX,Drug X
+ARMCD,Arm Code,CHEMO,Platinum chemotherapy
+NY,No Yes Response,Y,Yes
+NY,No Yes Response,N,No
+EOSSTT,End of Study Status,COMPLETED,Completed
+EOSSTT,End of Study Status,DISCONTINUED,Discontinued
+EOSSTT,End of Study Status,ONGOING,Ongoing
+REGION,Geographic Region,North America,North America
+REGION,Geographic Region,Europe,Europe
+REGION,Geographic Region,Asia,Asia
+ECOG,ECOG Performance Status,0,Fully active
+ECOG,ECOG Performance Status,1,Restricted in physically strenuous activity
+HISTOL,Histology,Non-squamous,Non-squamous
+HISTOL,Histology,Squamous,Squamous
+BMRKGR1,Biomarker Group 1,Low,Biomarker 5 or below
+BMRKGR1,Biomarker Group 1,High,Biomarker above 5
+PARAMCD,Parameter Code,OS,Overall Survival
+PARAMCD,Parameter Code,PFS,Progression Free Survival
+PARAM,Parameter,Overall Survival,Overall Survival
+PARAM,Parameter,Progression Free Survival,Progression Free Survival

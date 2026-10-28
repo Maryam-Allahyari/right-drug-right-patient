@@ -76,7 +76,15 @@ Version 1 (2026-10-19) described a generic oncology trial with PFS as the primar
 | Bayesian horseshoe (`bonsaiforest::horseshoe`) moved to a later extension | Long computing time; ridge and lasso already show the trade-off |
 | MCSE added to all performance measures | Recommended for simulation studies (Morris et al., 2019) |
 
+## Addendum: extensions after the main study (2026-10-28)
+Added after the main results were known, so they are extensions, not part of the pre-specified plan.
+
+- **S5, a delayed treatment effect** (`trial/scripts/06_delayed_effect.R`). Drug X has no effect for the first 4 months, then HR 0.60 on death and progression, as is often seen with immunotherapy. S1–S4 are unchanged (same random draws). Compared with S2 (HR 0.70 from the start), 500 trials per scenario with 300 and 800 patients. Measures: power of the log-rank test and of the difference in restricted mean survival time up to 24 months (RMST; Royston & Parmar, 2013); the average HR; how often the Grambsch–Therneau test (`cox.zph`) rejects proportional hazards; bias and coverage of the RMST difference against a trial of 200,000 patients.
+- **M5, the horseshoe prior** (`trial/scripts/07_horseshoe.R`), on a subset: the first 200 trials of S1 and S3 with 300 and 800 patients, the same trials as in the main study. Measures: RMSE of the subgroup log HRs next to the other methods on the same trials, the mean ECOG 0 and ECOG 1 HRs in S3, and MCMC diagnostics (R-hat, divergent transitions). 4 chains of 1,000 warm-up and 1,000 sampling iterations, `adapt_delta` 0.95.
+
 ## References
 - Gadgeel S, Rodríguez-Abreu D, Speranza G, et al. Updated analysis from KEYNOTE-189: pembrolizumab or placebo plus pemetrexed and platinum for previously untreated metastatic nonsquamous non-small-cell lung cancer. *J Clin Oncol*. 2020;38(14):1505–1517. doi:10.1200/JCO.19.03136
+- Grambsch PM, Therneau TM. Proportional hazards tests and diagnostics based on weighted residuals. *Biometrika*. 1994;81(3):515–526. doi:10.1093/biomet/81.3.515
 - Morris TP, White IR, Crowther MJ. Using simulation studies to evaluate statistical methods. *Stat Med*. 2019;38(11):2074–2102. doi:10.1002/sim.8086
 - Paz-Ares L, Luft A, Vicente D, et al. Pembrolizumab plus chemotherapy for squamous non-small-cell lung cancer. *N Engl J Med*. 2018;379(21):2040–2051. doi:10.1056/NEJMoa1810865
+- Royston P, Parmar MKB. Restricted mean survival time: an alternative to the hazard ratio for the design and analysis of randomized trials with a time-to-event outcome. *BMC Med Res Methodol*. 2013;13:152. doi:10.1186/1471-2288-13-152

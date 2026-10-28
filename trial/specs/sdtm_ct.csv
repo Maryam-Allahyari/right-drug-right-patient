@@ -1,0 +1,14 @@
+codelist_code,term_code,term_value,collected_value,term_preferred_term,term_synonyms
+C66731,C16576,F,Female,Female,
+C66731,C20197,M,Male,Male,
+C66786,,USA,United States,United States of America,USA; United States of America
+C66786,,CAN,Canada,Canada,
+C66786,,DEU,Germany,Germany,
+C66786,,FRA,France,France,
+C66786,,ESP,Spain,Spain,
+C66786,,GBR,United Kingdom,United Kingdom of Great Britain and Northern Ireland,UK
+C66786,,CHN,China,China,
+C66786,,JPN,Japan,Japan,
+C66786,,KOR,South Korea,"Korea, Republic of",Republic of Korea
+ARMCD,,DRUGX,Drug X,Drug X,
+ARMCD,,CHEMO,Platinum chemotherapy,Platinum chemotherapy,

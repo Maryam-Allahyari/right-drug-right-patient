@@ -1,0 +1,3 @@
+dataset,structure,label
+ADSL,One record per subject,Subject-Level Analysis Dataset
+ADTTE,One record per subject per parameter,Time-to-Event Analysis Dataset

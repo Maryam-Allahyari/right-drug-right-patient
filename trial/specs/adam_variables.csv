@@ -1,0 +1,56 @@
+dataset,variable,order,key_seq,label,type,length,format,origin,codelist,derivation
+ADSL,STUDYID,1,1,Study Identifier,text,7,,Predecessor,,DM.STUDYID
+ADSL,USUBJID,2,2,Unique Subject Identifier,text,12,,Predecessor,,DM.USUBJID
+ADSL,SUBJID,3,,Subject Identifier for the Study,text,4,,Predecessor,,DM.SUBJID
+ADSL,COUNTRY,4,,Country,text,3,,Predecessor,,DM.COUNTRY
+ADSL,REGION1,5,,Geographic Region 1,text,13,,Derived,REGION,"From DM.COUNTRY: USA, CAN = North America; DEU, FRA, ESP, GBR = Europe; CHN, JPN, KOR = Asia"
+ADSL,AGE,6,,Age,integer,8,,Predecessor,,DM.AGE
+ADSL,AGEU,7,,Age Units,text,5,,Predecessor,AGEU,DM.AGEU
+ADSL,AGEGR1,8,,Pooled Age Group 1,text,4,,Derived,AGEGR1,"<65 if AGE < 65, >=65 otherwise"
+ADSL,SEX,9,,Sex,text,1,,Predecessor,SEX,DM.SEX
+ADSL,ARM,10,,Description of Planned Arm,text,21,,Predecessor,ARM,DM.ARM
+ADSL,ARMCD,11,,Planned Arm Code,text,5,,Predecessor,ARMCD,DM.ARMCD
+ADSL,ACTARM,12,,Description of Actual Arm,text,21,,Predecessor,ARM,DM.ACTARM
+ADSL,ACTARMCD,13,,Actual Arm Code,text,5,,Predecessor,ARMCD,DM.ACTARMCD
+ADSL,TRT01P,14,,Planned Treatment for Period 01,text,21,,Derived,ARM,DM.ARM
+ADSL,TRT01A,15,,Actual Treatment for Period 01,text,21,,Derived,ARM,DM.ACTARM
+ADSL,ITTFL,16,,Intent-To-Treat Population Flag,text,1,,Derived,NY,Y for every randomised subject
+ADSL,SAFFL,17,,Safety Population Flag,text,1,,Derived,NY,Y if the subject has an EX record with EXDOSE > 0
+ADSL,RANDDT,18,,Date of Randomization,date,8,DATE9.,Derived,,DS.DSSTDTC where DS.DSDECOD = 'RANDOMIZED'
+ADSL,TRTSDT,19,,Date of First Exposure to Treatment,date,8,DATE9.,Derived,,Date part of the first EX.EXSTDTC with EXDOSE > 0
+ADSL,TRTEDT,20,,Date of Last Exposure to Treatment,date,8,DATE9.,Derived,,Date part of the last EX.EXENDTC with EXDOSE > 0
+ADSL,TRTDURD,21,,Total Treatment Duration (Days),integer,8,,Derived,,TRTEDT - TRTSDT + 1
+ADSL,EOSSTT,22,,End of Study Status,text,12,,Derived,EOSSTT,"DISCONTINUED if a disposition event is recorded in DS, ONGOING otherwise"
+ADSL,EOSDT,23,,End of Study Date,date,8,DATE9.,Derived,,DS.DSSTDTC of the disposition event
+ADSL,DTHFL,24,,Subject Death Flag,text,1,,Predecessor,NY,DM.DTHFL
+ADSL,DTHDT,25,,Date of Death,date,8,DATE9.,Derived,,DM.DTHDTC as a date
+ADSL,LSTALVDT,26,,Date Last Known Alive,date,8,DATE9.,Derived,,"Latest of RANDDT, TRTEDT, last RS.RSDTC and SS.SSDTC, or DTHDT for subjects who died"
+ADSL,ECOG,27,,Baseline ECOG Performance Status,text,1,,Predecessor,ECOG,SC.SCSTRESC where SC.SCTESTCD = 'ECOG'
+ADSL,HISTOL,28,,Histology,text,12,,Predecessor,HISTOL,SC.SCSTRESC where SC.SCTESTCD = 'HISTOL'
+ADSL,BMRK,29,,Biomarker Value at Baseline,float,8,,Predecessor,,"SC.SCSTRESC where SC.SCTESTCD = 'BMRK', as a number"
+ADSL,BMRKGR1,30,,Biomarker Group 1 (Cut-off 5),text,4,,Derived,BMRKGR1,"High if BMRK > 5, Low otherwise"
+ADTTE,STUDYID,1,1,Study Identifier,text,7,,Predecessor,,DM.STUDYID
+ADTTE,USUBJID,2,2,Unique Subject Identifier,text,12,,Predecessor,,DM.USUBJID
+ADTTE,PARAMCD,3,3,Parameter Code,text,3,,Assigned,PARAMCD,
+ADTTE,PARAM,4,,Parameter,text,25,,Assigned,PARAM,
+ADTTE,AVAL,5,,Analysis Value,float,8,,Derived,,"ADT - STARTDT + 1, in days"
+ADTTE,STARTDT,6,,Time-to-Event Origin Date for Subject,date,8,DATE9.,Derived,,ADSL.RANDDT
+ADTTE,ADT,7,,Analysis Date,date,8,DATE9.,Derived,,"OS: DTHDT, or LSTALVDT if alive. PFS: first progression in ADRS or death, or the last tumour assessment if neither"
+ADTTE,CNSR,8,,Censor,integer,8,,Derived,,"0 for an event (death, progression), 1 if censored"
+ADTTE,EVNTDESC,9,,Event or Censoring Description,text,21,,Derived,,Description of the event or censoring source
+ADTTE,CNSDTDSC,10,,Censor Date Description,text,21,,Derived,,"Description of the censoring date, censored records only"
+ADTTE,SRCDOM,11,,Source Data,text,4,,Derived,,Dataset ADT comes from
+ADTTE,SRCVAR,12,,Source Variable,text,8,,Derived,,Variable ADT comes from
+ADTTE,SRCSEQ,13,,Source Sequence Number,integer,8,,Derived,,ASEQ of the source record in ADRS
+ADTTE,ASEQ,14,,Analysis Sequence Number,integer,8,,Derived,,"Sequence number within subject, by PARAMCD"
+ADTTE,ARMCD,15,,Planned Arm Code,text,5,,Predecessor,ARMCD,DM.ARMCD
+ADTTE,ARM,16,,Description of Planned Arm,text,21,,Predecessor,ARM,DM.ARM
+ADTTE,TRT01A,17,,Actual Treatment for Period 01,text,21,,Derived,ARM,DM.ACTARM
+ADTTE,AGE,18,,Age,integer,8,,Predecessor,,DM.AGE
+ADTTE,AGEGR1,19,,Pooled Age Group 1,text,4,,Derived,AGEGR1,"<65 if AGE < 65, >=65 otherwise"
+ADTTE,SEX,20,,Sex,text,1,,Predecessor,SEX,DM.SEX
+ADTTE,REGION1,21,,Geographic Region 1,text,13,,Derived,REGION,"From DM.COUNTRY: USA, CAN = North America; DEU, FRA, ESP, GBR = Europe; CHN, JPN, KOR = Asia"
+ADTTE,ECOG,22,,Baseline ECOG Performance Status,text,1,,Predecessor,ECOG,SC.SCSTRESC where SC.SCTESTCD = 'ECOG'
+ADTTE,HISTOL,23,,Histology,text,12,,Predecessor,HISTOL,SC.SCSTRESC where SC.SCTESTCD = 'HISTOL'
+ADTTE,BMRK,24,,Biomarker Value at Baseline,float,8,,Predecessor,,"SC.SCSTRESC where SC.SCTESTCD = 'BMRK', as a number"
+ADTTE,BMRKGR1,25,,Biomarker Group 1 (Cut-off 5),text,4,,Derived,BMRKGR1,"High if BMRK > 5, Low otherwise"

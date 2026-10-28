@@ -11,6 +11,7 @@
 library(dplyr)
 
 month <- 30.4375
+delay_months <- 4   # S5: Drug X only starts to work after this
 
 # true log HR for each patient, by scenario
 scenario_loghr <- function(scenario, d) {
@@ -18,7 +19,10 @@ scenario_loghr <- function(scenario, d) {
     S1 = rep(0, nrow(d)),
     S2 = rep(log(0.70), nrow(d)),
     S3 = ifelse(d$ecog == "0", log(0.55), 0),
-    S4 = log(0.70) - 0.5 * log(d$bmrk / 5)
+    S4 = log(0.70) - 0.5 * log(d$bmrk / 5),
+    # delayed effect, as often seen with immunotherapy: no difference for the
+    # first 4 months, then HR 0.60 (applied in sim_trial)
+    S5 = rep(log(0.60), nrow(d))
   )
 }
 
@@ -48,10 +52,23 @@ sim_trial <- function(n, scenario, seed = NULL, max_scans = 24) {
   # prognostic and treatment effects multiply both hazards, so OS and PFS
   # share one true HR. Medians are for the best-prognosis group; they give
   # about 11 months OS and 5 months PFS for the control arm as a whole.
+  delayed <- scenario == "S5"
   lp <- log(1.2) * (d$agegr == ">=65") + log(1.5) * (d$ecog == "1") +
-    log(1.2) * (d$hist == "Squamous") + d$arm * d$loghr
+    log(1.2) * (d$hist == "Squamous") + d$arm * d$loghr * !delayed
   t_death <- rexp(n, log(2) / (16 * month) * exp(lp))
   t_prog  <- rexp(n, log(2) / (12.5 * month) * exp(lp))
+  if (delayed) {
+    # The hazard is multiplied by the HR only after the delay, so a Drug X
+    # patient whose time would have been past the delay gets the rest of it
+    # stretched by 1 / HR. Same random draws as the other scenarios.
+    stretch <- function(t) {
+      late <- d$arm == 1 & t > delay_months * month
+      t[late] <- delay_months * month + (t[late] - delay_months * month) / exp(d$loghr[late])
+      t
+    }
+    t_death <- stretch(t_death)
+    t_prog  <- stretch(t_prog)
+  }
   d$t_death <- ceiling(t_death)
   d$t_prog  <- ceiling(t_prog)     # only seen if it comes before death
 

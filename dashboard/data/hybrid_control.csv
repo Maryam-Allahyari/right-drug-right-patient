@@ -1,0 +1,6 @@
+"analysis","hr","lower","upper","prob_benefit","tau","max_rhat","ci_width"
+"Trial only (no borrowing)",0.708,0.597,0.847,1,,1,0.25
+"Routine care, full borrowing",2.4,2.02,2.86,0,,1,0.841
+"Routine care, dynamic borrowing",0.712,0.597,0.849,1,0.0816,1,0.253
+"Second trial, full borrowing",0.689,0.587,0.806,1,,1,0.219
+"Second trial, dynamic borrowing",0.707,0.596,0.837,1,81.4,1,0.241

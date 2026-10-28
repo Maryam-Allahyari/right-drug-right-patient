@@ -154,6 +154,38 @@ hrs <- bind_rows(
 print(hrs)
 write.csv(hrs, file.path(out, "hazard_ratios.csv"), row.names = FALSE)
 
+# ---- is one HR a fair summary? ----
+# cox.zph tests whether the HR changes over time (proportional hazards).
+# A small p-value means it does, and then a single HR hides how the two
+# groups really differ; the KM curves have to be read instead
+ph <- cox.zph(coxph(Surv(AVALM, is_event) ~ SOURCE + AGEGR1 + SEX, data = os30))
+ph_tab <- as.data.frame(ph$table) %>%
+  tibble::rownames_to_column("term") %>%
+  transmute(term, chisq = round(chisq, 1), df, p = signif(p, 2))
+print(ph_tab)
+write.csv(ph_tab, file.path(out, "ph_test.csv"), row.names = FALSE)
+
+# ---- does age explain any of the gap? KM by age group within each source ----
+km_by <- lapply(split(os, list(os$SOURCE, os$AGEGR1)), function(g) {
+  f <- survfit(Surv(AVALM, is_event) ~ 1, data = g)
+  data.frame(SOURCE = g$SOURCE[1], AGEGR1 = g$AGEGR1[1],
+             time = c(0, f$time), surv = c(1, f$surv),
+             median = unname(summary(f)$table["median"]))
+}) %>% bind_rows()
+medians_age <- distinct(km_by, SOURCE, AGEGR1, median) %>% mutate(median = round(median, 1))
+print(medians_age)
+write.csv(medians_age, file.path(out, "median_os_by_age.csv"), row.names = FALSE)
+
+p_age <- ggplot(km_by, aes(time, surv, colour = AGEGR1)) +
+  geom_step() +
+  facet_wrap(~SOURCE) +
+  scale_x_continuous(breaks = seq(0, 72, 12)) +
+  labs(x = "Months", y = "Overall survival", colour = "Age group",
+       title = "Overall survival by age group in each source",
+       subtitle = "Age makes little difference within either source; the gap between the sources is far larger") +
+  theme_bw()
+ggsave(file.path(out, "f_km_os_by_age.png"), p_age, width = 9, height = 4.5, dpi = 150)
+
 # ---- Kaplan-Meier plot ----
 km <- survfit2(Surv(AVALM, is_event) ~ SOURCE, data = os) %>%
   ggsurvfit() + add_confidence_interval() + add_risktable() +

@@ -190,7 +190,23 @@ The trial follows patients for 30 months and the cohort for up to 6 years, so fo
 - **Without the source value the stage would have been invisible.** The OMOP vocabulary maps "Non-small cell carcinoma of lung, TNM stage 1" to "Non-small cell lung cancer". In OMOP, stage belongs in the Cancer Modifier vocabulary and the oncology extension, which weren't part of this conversion.
 - An HR of 0.04 would be absurd as a treatment comparison; here it is a measure of how different the two populations are. This is the reason external comparisons need a check of comparability on the main prognostic factors first.
 
+**Further checks** (`analysis/compare_os.R`, `analysis/characterise_cohort.R`):
+- **A single HR is not a fair summary here.** The proportional hazards test (`cox.zph`, first 30 months, adjusted for age group and sex) gives p = 1.7 × 10⁻⁷ for the source (`results/ph_test.csv`): the routine-care patients hardly die for two years and then die steadily, the trial's die from the start. The KM curves, not the HR, show how the groups differ.
+- **Age doesn't explain the gap.** Median OS is 11.1 vs 11.0 months for patients under and over 65 in the trial, and 47.6 vs 44.7 months in routine care (`results/median_os_by_age.csv`, `results/f_km_os_by_age.png`).
+- **The cohort's medical history doesn't look like lung cancer patients' either.** FeatureExtraction, the OHDSI tool for describing a cohort, summarises the year before the first dose (`results/table1_cohort.csv`, `results/top_conditions_prior_year.csv`). COPD is recorded in 0.3% of patients, although most real NSCLC patients are (former) smokers and COPD is common among them; the most frequent recent diagnoses are dental (tooth disorders 61%, caries 54%), from Synthea's dental model. The median Charlson comorbidity index is 3. A few patients have an older cancer (prostate, breast, colon) still recorded as ongoing: diagnosed more than five years before, so the cohort rule keeps them.
+
+**How stage would be stored with the OMOP oncology extension.** OMOP CDM v5.4 has what this conversion was missing. Stage, grade and TNM categories are concepts in the Cancer Modifier vocabulary and are stored as rows in `measurement`, linked to the diagnosis they describe through `measurement_event_id` (the `condition_occurrence_id` of the NSCLC diagnosis) and `meas_event_field_concept_id`. The `episode` and `episode_event` tables group records into disease episodes (first occurrence, progression) and treatment episodes (lines of therapy). With Synthea's stage codes loaded this way, the cohort could have required stage IV directly in its definition, and the trial comparison would have been run on comparable patients from the start. Here it would leave nobody, since every patient is stage I.
+
+
 **What a valid comparison with real data would need:** stage and ECOG captured at the start of treatment (OMOP oncology extension or registry data), the trial's eligibility criteria applied to them, a calendar window when chemotherapy alone was the standard first-line treatment, and adjustment or weighting for the remaining differences in age, sex and other prognostic factors.
+
+## Borrowing the cohort as external controls
+
+`analysis/hybrid_control.R` asks whether the cohort could supplement the trial's control arm (a hybrid control arm), using Bayesian dynamic borrowing with `psborrow2`. External follow-up is cut at 30 months like the trial's, and OS is modelled as exponential, adjusted for age group and sex (`results/hybrid_control.csv`, `results/f_hybrid_control.png`).
+
+Taking the cohort as if it were trial patients (full borrowing) turns the trial's HR for Drug X from 0.71 into 2.40, because the "controls" now live far longer. The commensurate prior detects the disagreement, borrows almost nothing and gives back the trial-only answer. As a positive check, the control arm of a second simulated trial with the same design is borrowed from, narrowing the interval. Results and interpretation are in the main README.
+
+Stan models are compiled by CmdStan (`cmdstanr::install_cmdstan()`), which on Windows needs Rtools. Here Rtools is in `M:/Tools/rtools44` and CmdStan in `M:/Tools/cmdstan`, set with `RTOOLS44_HOME` and `CMDSTAN` in the project's `.Renviron`.
 
 ## Data location
 Synthea output is written to `M:/Data/synthea/`, the vocabularies to `M:/Data/vocab/` and the full data quality output to `M:/Data/omop/quality/`. None of it is tracked in git: the Synthea data can be regenerated with the commands in `synthea/`, and the vocabularies downloaded again from Athena with the list above.

@@ -1,0 +1,97 @@
+"scenario","scenario_label","n","measure","method","value","mcse","trials"
+"S1","S1 No effect",300,"Overall effect significant",,0.04,0.00876356092008266,500
+"S1","S1 No effect",800,"Overall effect significant",,0.044,0.00917213170424411,500
+"S2","S2 Same effect for all",300,"Overall effect significant",,0.61,0.0218128402552258,500
+"S2","S2 Same effect for all",800,"Overall effect significant",,0.986,0.00525433154644813,500
+"S3","S3 Effect only in ECOG 0",300,"Overall effect significant",,0.3,0.0204939015319192,500
+"S3","S3 Effect only in ECOG 0",800,"Overall effect significant",,0.702,0.0204546327270865,500
+"S4","S4 Continuous biomarker",300,"Overall effect significant",,0.656,0.0212444816364156,500
+"S4","S4 Continuous biomarker",800,"Overall effect significant",,0.97,0.00762889244910426,500
+"S1","S1 No effect",300,"Any interaction test significant",,0.266,0.0197607692157972,500
+"S1","S1 No effect",800,"Any interaction test significant",,0.278,0.0200357680162254,500
+"S2","S2 Same effect for all",300,"Any interaction test significant",,0.246,0.0192605295877346,500
+"S2","S2 Same effect for all",800,"Any interaction test significant",,0.288,0.0202512221853398,500
+"S3","S3 Effect only in ECOG 0",300,"Any interaction test significant",,0.59,0.0219954540757858,500
+"S3","S3 Effect only in ECOG 0",800,"Any interaction test significant",,0.892,0.0138806339912844,500
+"S4","S4 Continuous biomarker",300,"Any interaction test significant",,0.46,0.0222890107452081,500
+"S4","S4 Continuous biomarker",800,"Any interaction test significant",,0.832,0.0167198086113448,500
+"S1","S1 No effect",300,"ECOG interaction found",,0.054,0.0101078187557949,500
+"S1","S1 No effect",800,"ECOG interaction found",,0.048,0.00955991631762538,500
+"S2","S2 Same effect for all",300,"ECOG interaction found",,0.052,0.00992935043192655,500
+"S2","S2 Same effect for all",800,"ECOG interaction found",,0.052,0.00992935043192655,500
+"S3","S3 Effect only in ECOG 0",300,"ECOG interaction found",,0.468,0.0223148381127894,500
+"S3","S3 Effect only in ECOG 0",800,"ECOG interaction found",,0.868,0.0151377673386798,500
+"S4","S4 Continuous biomarker",300,"ECOG interaction found",,0.064,0.0109456840809517,500
+"S4","S4 Continuous biomarker",800,"ECOG interaction found",,0.06,0.0106207344378814,500
+"S1","S1 No effect",300,"Another variable wrongly flagged",,0.176,0.017030795636141,500
+"S1","S1 No effect",800,"Another variable wrongly flagged",,0.192,0.0176145394489893,500
+"S2","S2 Same effect for all",300,"Another variable wrongly flagged",,0.18,0.0171813852759316,500
+"S2","S2 Same effect for all",800,"Another variable wrongly flagged",,0.198,0.0178211110764733,500
+"S3","S3 Effect only in ECOG 0",300,"Another variable wrongly flagged",,0.188,0.0174731794473702,500
+"S3","S3 Effect only in ECOG 0",800,"Another variable wrongly flagged",,0.176,0.017030795636141,500
+"S4","S4 Continuous biomarker",300,"Another variable wrongly flagged",,0.16,0.0163951212255354,500
+"S4","S4 Continuous biomarker",800,"Another variable wrongly flagged",,0.18,0.0171813852759316,500
+"S1","S1 No effect",300,"At least one misleading subgroup",,0.332,0.0210606742532142,500
+"S1","S1 No effect",800,"At least one misleading subgroup",,0.324,0.020929596269398,500
+"S2","S2 Same effect for all",300,"At least one misleading subgroup",,0,0,500
+"S2","S2 Same effect for all",800,"At least one misleading subgroup",,0,0,500
+"S3","S3 Effect only in ECOG 0",300,"At least one misleading subgroup",,0.074,0.0117067501895274,500
+"S3","S3 Effect only in ECOG 0",800,"At least one misleading subgroup",,0.068,0.0112584190719657,500
+"S4","S4 Continuous biomarker",300,"At least one misleading subgroup",,0.008,0.00398396787135639,500
+"S4","S4 Continuous biomarker",800,"At least one misleading subgroup",,0.002,0.00199799899899875,500
+"S1","S1 No effect",300,"Biomarker effect found: cut-off",,0.058,0.0104533248299285,500
+"S1","S1 No effect",800,"Biomarker effect found: cut-off",,0.068,0.0112584190719657,500
+"S2","S2 Same effect for all",300,"Biomarker effect found: cut-off",,0.042,0.00897061870775924,500
+"S2","S2 Same effect for all",800,"Biomarker effect found: cut-off",,0.064,0.0109456840809517,500
+"S3","S3 Effect only in ECOG 0",300,"Biomarker effect found: cut-off",,0.042,0.00897061870775924,500
+"S3","S3 Effect only in ECOG 0",800,"Biomarker effect found: cut-off",,0.058,0.0104533248299285,500
+"S4","S4 Continuous biomarker",300,"Biomarker effect found: cut-off",,0.334,0.0210923682880799,500
+"S4","S4 Continuous biomarker",800,"Biomarker effect found: cut-off",,0.786,0.0183414285157945,500
+"S1","S1 No effect",300,"Biomarker effect found: linear",,0.042,0.00897061870775924,500
+"S1","S1 No effect",800,"Biomarker effect found: linear",,0.072,0.0115599307956406,500
+"S2","S2 Same effect for all",300,"Biomarker effect found: linear",,0.042,0.00897061870775924,500
+"S2","S2 Same effect for all",800,"Biomarker effect found: linear",,0.042,0.00897061870775924,500
+"S3","S3 Effect only in ECOG 0",300,"Biomarker effect found: linear",,0.038,0.00855055553750749,500
+"S3","S3 Effect only in ECOG 0",800,"Biomarker effect found: linear",,0.056,0.0102824121683582,500
+"S4","S4 Continuous biomarker",300,"Biomarker effect found: linear",,0.514,0.0223519126698366,500
+"S4","S4 Continuous biomarker",800,"Biomarker effect found: linear",,0.932,0.0112584190719657,500
+"S1","S1 No effect",300,"Biomarker effect found: spline",,0.064,0.0109456840809517,500
+"S1","S1 No effect",800,"Biomarker effect found: spline",,0.064,0.0109456840809517,500
+"S2","S2 Same effect for all",300,"Biomarker effect found: spline",,0.062,0.0107848041243223,500
+"S2","S2 Same effect for all",800,"Biomarker effect found: spline",,0.044,0.00917213170424411,500
+"S3","S3 Effect only in ECOG 0",300,"Biomarker effect found: spline",,0.074,0.0117067501895274,500
+"S3","S3 Effect only in ECOG 0",800,"Biomarker effect found: spline",,0.058,0.0104533248299285,500
+"S4","S4 Continuous biomarker",300,"Biomarker effect found: spline",,0.338,0.0211544794310803,500
+"S4","S4 Continuous biomarker",800,"Biomarker effect found: spline",,0.818,0.0172554918793989,500
+"S1","S1 No effect",300,"Coverage of 95% CIs",,0.958923076923077,0.00334014395558007,500
+"S1","S1 No effect",800,"Coverage of 95% CIs",,0.953846153846154,0.00405696357018129,500
+"S2","S2 Same effect for all",300,"Coverage of 95% CIs",,0.953230769230769,0.00408367265467004,500
+"S2","S2 Same effect for all",800,"Coverage of 95% CIs",,0.955076923076923,0.00371352007538326,500
+"S3","S3 Effect only in ECOG 0",300,"Coverage of 95% CIs",,0.945692307692308,0.00437691848479739,500
+"S3","S3 Effect only in ECOG 0",800,"Coverage of 95% CIs",,0.945846153846154,0.00447977116794885,500
+"S4","S4 Continuous biomarker",300,"Coverage of 95% CIs",,0.955692307692308,0.0037536652075255,500
+"S4","S4 Continuous biomarker",800,"Coverage of 95% CIs",,0.954923076923077,0.00394223146030887,500
+"S1","S1 No effect",300,"RMSE of subgroup log HR","Naive",0.211803908171479,0.00297138529298174,500
+"S1","S1 No effect",800,"RMSE of subgroup log HR","Naive",0.128694640725272,0.00207306892467734,500
+"S2","S2 Same effect for all",300,"RMSE of subgroup log HR","Naive",0.225694166862239,0.00363199264653143,500
+"S2","S2 Same effect for all",800,"RMSE of subgroup log HR","Naive",0.136122086202674,0.00200567590603265,500
+"S3","S3 Effect only in ECOG 0",300,"RMSE of subgroup log HR","Naive",0.227863943964915,0.003544251211483,500
+"S3","S3 Effect only in ECOG 0",800,"RMSE of subgroup log HR","Naive",0.137216472754888,0.00214814927054478,500
+"S4","S4 Continuous biomarker",300,"RMSE of subgroup log HR","Naive",0.223461149358922,0.00327363590406411,500
+"S4","S4 Continuous biomarker",800,"RMSE of subgroup log HR","Naive",0.133335120802277,0.00195328561493683,500
+"S1","S1 No effect",300,"RMSE of subgroup log HR","Ridge",0.141994388383782,0.00399489931005842,500
+"S1","S1 No effect",800,"RMSE of subgroup log HR","Ridge",0.0843471600933484,0.00284666040722805,500
+"S2","S2 Same effect for all",300,"RMSE of subgroup log HR","Ridge",0.147650638045627,0.00432306710080405,500
+"S2","S2 Same effect for all",800,"RMSE of subgroup log HR","Ridge",0.0858590451075209,0.0026915963602215,500
+"S3","S3 Effect only in ECOG 0",300,"RMSE of subgroup log HR","Ridge",0.194601343490793,0.00387511877827796,500
+"S3","S3 Effect only in ECOG 0",800,"RMSE of subgroup log HR","Ridge",0.157081886587399,0.00201424768026587,500
+"S4","S4 Continuous biomarker",300,"RMSE of subgroup log HR","Ridge",0.171989656083675,0.00371387202647413,500
+"S4","S4 Continuous biomarker",800,"RMSE of subgroup log HR","Ridge",0.120210847568241,0.00186343140977533,500
+"S1","S1 No effect",300,"RMSE of subgroup log HR","Lasso",0.145353989774161,0.00393913432519599,500
+"S1","S1 No effect",800,"RMSE of subgroup log HR","Lasso",0.0893357203003664,0.00280178909436227,500
+"S2","S2 Same effect for all",300,"RMSE of subgroup log HR","Lasso",0.156098057833473,0.0044738839850424,500
+"S2","S2 Same effect for all",800,"RMSE of subgroup log HR","Lasso",0.0937465430453767,0.00261829615767381,500
+"S3","S3 Effect only in ECOG 0",300,"RMSE of subgroup log HR","Lasso",0.189846245917297,0.00377231587914277,500
+"S3","S3 Effect only in ECOG 0",800,"RMSE of subgroup log HR","Lasso",0.120319512616976,0.00243609191807765,500
+"S4","S4 Continuous biomarker",300,"RMSE of subgroup log HR","Lasso",0.175414561810279,0.00379342898801034,500
+"S4","S4 Continuous biomarker",800,"RMSE of subgroup log HR","Lasso",0.109487994428238,0.00228011137407741,500

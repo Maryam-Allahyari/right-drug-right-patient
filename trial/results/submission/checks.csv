@@ -1,0 +1,16 @@
+"check","passed"
+"DM from raw CRF data with sdtm.oak is identical to DM from write_sdtm.R",TRUE
+"ADSL has exactly the variables in the spec",TRUE
+"ADSL values are all in their codelists",TRUE
+"ADSL keys are unique",TRUE
+"ADSL xpt file has the spec's variables in the spec's order",TRUE
+"ADSL xpt file has a label on every variable",TRUE
+"ADSL xpt file has the same number of records",TRUE
+"ADSL xpt file has the same values as the dataset",TRUE
+"ADTTE has exactly the variables in the spec",TRUE
+"ADTTE values are all in their codelists",TRUE
+"ADTTE keys are unique",TRUE
+"ADTTE xpt file has the spec's variables in the spec's order",TRUE
+"ADTTE xpt file has a label on every variable",TRUE
+"ADTTE xpt file has the same number of records",TRUE
+"ADTTE xpt file has the same values as the dataset",TRUE

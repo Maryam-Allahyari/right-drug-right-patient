@@ -1,0 +1,8 @@
+"step","patients","removed"
+"First platinum dose (cisplatin or carboplatin)",834,
+"NSCLC diagnosed in the 180 days before the first platinum dose",713,121
+"Never diagnosed with small cell lung cancer",713,0
+"Paclitaxel within 7 days of the first platinum dose",713,0
+"No other cancer in the previous 5 years",651,62
+"Aged 18 or over at the first dose",651,0
+"At least a year of records before the first dose",651,0

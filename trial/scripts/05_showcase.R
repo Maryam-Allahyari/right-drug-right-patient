@@ -11,8 +11,9 @@
 #   Rscript trial/scripts/05_showcase.R
 #
 # Output in trial/results/showcase/: tables as text, figures as png, the
-# SDTM domains as csv, and adtte_os.csv (OS per patient, used later to
-# compare the control arm with the real-world cohort).
+# SDTM domains as csv, adtte_os.csv (OS per patient, used later to
+# compare the control arm with the real-world cohort) and ADSL, ADRS and
+# ADTTE as rds for the interactive app (app/app.R).
 
 suppressPackageStartupMessages({
   library(dplyr); library(admiral); library(admiralonco)
@@ -38,7 +39,8 @@ adsl <- derive_adsl(sdtm$dm, sdtm$ex, sdtm$ds, sdtm$sc, sdtm$rs, sdtm$ss) %>%
          BMRKGR1 = factor(BMRKGR1, levels = c("Low", "High")),
          REGION1 = factor(REGION1, levels = c("North America", "Europe", "Asia")))
 adrs  <- derive_adrs(sdtm$rs, adsl)
-adtte <- derive_adtte(adsl, adrs) %>%
+adtte_full <- derive_adtte(adsl, adrs)
+adtte <- adtte_full %>%
   select(USUBJID, PARAMCD, AVAL, CNSR) %>%
   left_join(adsl, by = "USUBJID") %>%
   mutate(AVALM = AVAL / month, is_event = CNSR == 0)
@@ -47,6 +49,11 @@ os  <- filter(adtte, PARAMCD == "OS")
 pfs <- filter(adtte, PARAMCD == "PFS")
 write.csv(select(os, USUBJID, ARM, AGE, AGEGR1, SEX, ECOG, AVAL, AVALM, CNSR),
           file.path(out, "adtte_os.csv"), row.names = FALSE)
+
+# the ADaM datasets as they are, for the teal app
+saveRDS(adsl, file.path(out, "adsl.rds"))
+saveRDS(adrs, file.path(out, "adrs.rds"))
+saveRDS(adtte_full, file.path(out, "adtte.rds"))
 
 # ---- Table 14.1.1 demographics and baseline characteristics ----
 t_demo <- basic_table(show_colcounts = TRUE,
