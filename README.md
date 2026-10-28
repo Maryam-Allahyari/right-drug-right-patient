@@ -9,7 +9,7 @@ This project looks at that question from two sides, using advanced non-small cel
 
 **Progress:**
 - Part 1: done. The plan ([docs/sap.md](docs/sap.md)), code ([trial/](trial/)) and results are below.
-- Part 2: done up to the survival comparison ([omop/](omop/)); results below. A second build of the cohort with the OHDSI cohort tools, as a cross-check, comes next.
+- Part 2: done ([omop/](omop/)); results below.
 
 All data are **simulated or synthetic**: there are no real patients and no real drug. The results describe how the methods behave in data like these; they say nothing about the effect of any real treatment.
 
@@ -84,7 +84,7 @@ Rscript trial/scripts/05_showcase.R            # one trial to tables and figures
 Trial patients are selected: they must be fit enough, meet strict criteria and agree to take part. Patients treated in routine care are often older and sicker, so a trial's results may not carry over to them. Health records can show who those patients are and how they fare, but only if the cohort is defined carefully and the data are checked.
 
 ### Method
-Synthetic patient records are generated with Synthea (Walonoski et al., 2018) and converted to the OMOP Common Data Model, the standard used by the OHDSI community (OHDSI, 2021). The cohort is NSCLC patients starting platinum chemotherapy, defined to mirror the trial's control arm, with a clear start of follow-up and censoring rules, following the ideas of target trial emulation (Hernán & Robins, 2016). It is written in OHDSI SQL, so it runs on any OMOP database; a second version with the OHDSI cohort tools is planned as a cross-check. OS is then derived with `admiral` into the same ADaM format as the trial and summarised with the same `tern` tables.
+Synthetic patient records are generated with Synthea (Walonoski et al., 2018) and converted to the OMOP Common Data Model, the standard used by the OHDSI community (OHDSI, 2021). The cohort is NSCLC patients starting platinum chemotherapy, defined to mirror the trial's control arm, with a clear start of follow-up and censoring rules, following the ideas of target trial emulation (Hernán & Robins, 2016). It is written in OHDSI SQL, so it runs on any OMOP database, and built a second time with the OHDSI cohort tools (`Capr`, `CirceR`, `CohortGenerator`) as a cross-check: both give the same 651 patients with the same start and end dates. OS is then derived with `admiral` into the same ADaM format as the trial and summarised with the same `tern` tables.
 
 The trial and the synthetic records were generated independently and never designed to match, so any difference between the two says nothing about real patients. The aim is a correct, reproducible and quality-checked pipeline, and a clear account of what would make such a comparison valid with real data.
 
@@ -109,6 +109,7 @@ bash omop/synthea/run_full.sh            # synthetic lung cancer population
 Rscript omop/etl/load_omop.R             # Synthea -> OMOP CDM (~35 min)
 Rscript omop/quality/run_quality.R       # Achilles and DataQualityDashboard (~15 min)
 Rscript omop/cohort/build_cohort.R       # the cohort and its attrition
+Rscript omop/cohort/crosscheck_circe.R   # the same cohort with the OHDSI cohort tools, compared
 Rscript omop/analysis/compare_os.R       # ADSL/ADTTE and the comparison with the trial
 ```
 
@@ -120,14 +121,14 @@ trial/R/             simulator, SDTM writer, ADaM derivations, analysis methods
 trial/scripts/       01-05, run in order
 trial/results/       results, figures, showcase tables and SDTM
 omop/                Part 2: Synthea, WhiteRabbit, mapping, OMOP load, data quality
-omop/cohort/         Part 2: cohort definition (SQL) and attrition
+omop/cohort/         Part 2: cohort definition (SQL and ATLAS JSON), attrition, cross-check
 omop/analysis/       Part 2: ADaM and survival comparison; results in omop/results/
 ```
 
 ## Tools
 **Part 1:** R · CDISC SDTM/ADaM · `admiral`, `admiralonco` · `rtables`, `tern` · `bonsaiforest` · `survival`, `ggsurvfit`, `ggplot2`
 
-**Part 2:** Synthea · OMOP CDM v5.4 · PostgreSQL / SQL · OHDSI tools (WhiteRabbit, Rabbit-in-a-Hat, ETL-Synthea, Achilles, DataQualityDashboard, SqlRender, DatabaseConnector; planned: CirceR, CohortGenerator) · SNOMED CT, RxNorm · R · `admiral`, `tern`, `survival`
+**Part 2:** Synthea · OMOP CDM v5.4 · PostgreSQL / SQL · OHDSI tools (WhiteRabbit, Rabbit-in-a-Hat, ETL-Synthea, Achilles, DataQualityDashboard, SqlRender, DatabaseConnector, Capr, CirceR, CohortGenerator) · SNOMED CT, RxNorm · R · `admiral`, `tern`, `survival`
 
 ## References
 

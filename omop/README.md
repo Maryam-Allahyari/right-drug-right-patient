@@ -136,6 +136,17 @@ Three rules remove nobody here, because Synthea treats every NSCLC patient the s
 
 Follow-up runs from the first dose to death, or to the end of the patient's records (the end of the observation period), where alive patients are censored. The cohort is stored in the standard OMOP `results.cohort` table (cohort_definition_id 1), so other OHDSI tools can use it.
 
+**Cross-check with the OHDSI cohort tools.** `cohort/crosscheck_circe.R` builds the same cohort a second, independent way. The definition is written in R with `Capr` (installed from github.com/OHDSI/Capr) and exported as Circe JSON (`cohort/nsclc_platinum.json`, the format ATLAS uses, so it can be imported into ATLAS as it is). `CirceR` turns the JSON into SQL and `CohortGenerator` runs it. One difference in structure: Circe checks the year of prior records at entry, so that rule is part of the entry event instead of the list of rules.
+
+| | SQL cohort | Circe cohort |
+|---|---|---|
+| Patients | 651 | 651 |
+| Attrition (after each rule) | 834 → 713 → 713 → 713 → 651 → 651 | 834 → 713 → 713 → 713 → 651 → 651 |
+| Only in one of the two | 0 | 0 |
+| Same patient, different start or end date | 0 | 0 |
+
+The two definitions agree patient by patient (`cohort/crosscheck.csv`, `cohort/attrition_circe.csv`).
+
 **Who is in it** (`cohort/cohort_summary.csv`):
 
 | | Cohort | Trial control arm (showcase trial, `trial/results/showcase`) |
